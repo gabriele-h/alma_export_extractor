@@ -104,7 +104,7 @@ with open(tsv_dateipfad, 'w+', encoding="utf-8") as tsv_datei:
         tsv_line = {}
         if ku.find('all:record', ns):
             for field_type in tsv_header:
-                content = ""
+                content = []
 
                 if counters[field_type] > 1:
                     iterate = True
@@ -117,7 +117,7 @@ with open(tsv_dateipfad, 'w+', encoding="utf-8") as tsv_datei:
                         if controlfield.attrib['tag'] == controlfield_tag:
                             field_type_content = controlfield.text
                             if iterate:
-                                content += field_type_content
+                                content.append(field_type_content)
                 elif len(field_type) == 6:
                     datafield_tag = field_type[0:3]
                     datafield_ind1 = field_type[3]
@@ -131,11 +131,11 @@ with open(tsv_dateipfad, 'w+', encoding="utf-8") as tsv_datei:
                                 if subfield.attrib['code'] == subfield_code:
                                     field_type_content = subfield.text
                                     if iterate:
-                                        content += field_type_content
+                                        content.append(field_type_content)
                 try:
                     tsv_line[field_type] = field_type_content
                     if iterate:
-                        tsv_line[field_type] = content
+                        tsv_line[field_type] = ';'.join(content)
                 except NameError:
                     tsv_line[field_type] = ""
                 field_type_content = ''
@@ -145,12 +145,13 @@ with open(tsv_dateipfad, 'w+', encoding="utf-8") as tsv_datei:
                 sub_found = category.findall('all:sub', ns)
                 for main, sub in zip(main_found, sub_found):
                     categories.append(main.text + ': ' + sub.text)
-            tsv_line[field_type] = ', '.join(categories)
+            tsv_line['category'] = ', '.join(categories)
+            print(tsv_line)
             try:
                 tsv_line_string = '\t'.join(tsv_line)
             except TypeError:
                 print('Knowledge Unit kaputt?')
-            tsv_data_lines[field_type = tsv_line_string
+            tsv_data_lines.append(tsv_line_string)
     tsv_header.append('categories')
     tsv_header_string = '\t'.join(tsv_header)
     tsv_datei.write(tsv_header_string)
