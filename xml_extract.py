@@ -65,43 +65,41 @@ with open(tsv_dateipfad, 'w+', encoding="utf-8") as tsv_datei:
                 except KeyError:
                     datafield_ind2 = None
 
-                if datafield.findall('all:subfield', ns):
-                    subfield_exists = True
-                    for subfield in datafield.findall('all:subfield', ns):
+                for subfield in datafield.findall('all:subfield', ns):
+                    try:
+                        subfield_code = subfield.attrib['code']
+                    except KeyError:
+                        print('No subfield for datafield?')
+                    else:
+                        datafield_description = datafield_tag
+                        if datafield_ind1:
+                            datafield_description += datafield_ind1
+                        if datafield_ind2:
+                            datafield_description += datafield_ind2
+                        if subfield_code:
+                            datafield_description += subfield_code
+                        if datafield_description not in tsv_header:
+                            tsv_header.append(datafield_description)
+
                         try:
-                            subfield_code = subfield.attrib['code']
+                            local_counters[datafield_description]
                         except KeyError:
-                            subfield_code = None
-                else:
-                    subfield_exists = False
-                datafield_description = datafield_tag
-                if datafield_ind1:
-                    datafield_description += datafield_ind1
-                if datafield_ind2:
-                    datafield_description += datafield_ind2
-                if subfield_exists:
-                    datafield_description += subfield_code
-                if datafield_description not in tsv_header:
-                    tsv_header.append(datafield_description)
+                            local_counters[datafield_description] = 1
+                        else:
+                            local_counters[datafield_description] += 1
 
-                try:
-                    local_counters[datafield_description]
-                except KeyError:
-                    local_counters[datafield_description] = 1
-                else:
-                    local_counters[datafield_description] += 1
-
-                try:
-                    counters[datafield_description]
-                except KeyError:
-                    counters[datafield_description] = 1
-                else:
-                    if local_counters[datafield_description] > counters[datafield_description]:
-                        counters[datafield_description] = local_counters[datafield_description]
-                        print(f'counter for {datafield_description}: {counters[datafield_description]}')
+                        try:
+                            counters[datafield_description]
+                        except KeyError:
+                            counters[datafield_description] = 1
+                        else:
+                            if local_counters[datafield_description] > counters[datafield_description]:
+                                counters[datafield_description] = local_counters[datafield_description]
+                                print(f'counter for {datafield_description}: {counters[datafield_description]}')
 
     for ku in xml_etree.findall('all:knowledge_unit', ns):
         tsv_line = {}
+        tsv_header.sort()
         if ku.find('all:record', ns):
             for field_type in tsv_header:
                 content = []
@@ -148,10 +146,11 @@ with open(tsv_dateipfad, 'w+', encoding="utf-8") as tsv_datei:
             tsv_line['category'] = ', '.join(categories)
             print(tsv_line)
             try:
-                tsv_line_string = '\t'.join(tsv_line)
+                tsv_line_string = '\t'.join(tsv_line.values())
             except TypeError:
                 print('Knowledge Unit kaputt?')
-            tsv_data_lines.append(tsv_line_string)
+            else:
+                tsv_data_lines.append(tsv_line_string)
     tsv_header.append('categories')
     tsv_header_string = '\t'.join(tsv_header)
     tsv_datei.write(tsv_header_string)
