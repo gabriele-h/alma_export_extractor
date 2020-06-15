@@ -48,7 +48,6 @@ with open(tsv_dateipfad, 'w+', encoding="utf-8") as tsv_datei:
                 else:
                     if local_counters[controlfield_tag] > counters[controlfield_tag]:
                         counters[controlfield_tag] = local_counters[controlfield_tag]
-                        print(f'counter for {controlfield_tag}: {local_counters[controlfield_tag]}')
 
                 if controlfield_tag not in tsv_header:
                     tsv_header.append(controlfield_tag)
@@ -95,7 +94,6 @@ with open(tsv_dateipfad, 'w+', encoding="utf-8") as tsv_datei:
                         else:
                             if local_counters[datafield_description] > counters[datafield_description]:
                                 counters[datafield_description] = local_counters[datafield_description]
-                                print(f'counter for {datafield_description}: {counters[datafield_description]}')
 
     for ku in xml_etree.findall('all:knowledge_unit', ns):
         tsv_line = {}
@@ -144,7 +142,6 @@ with open(tsv_dateipfad, 'w+', encoding="utf-8") as tsv_datei:
                 for main, sub in zip(main_found, sub_found):
                     categories.append(main.text + ': ' + sub.text)
             tsv_line['category'] = ', '.join(categories)
-            print(tsv_line)
             try:
                 tsv_line_string = '\t'.join(tsv_line.values())
             except TypeError:
