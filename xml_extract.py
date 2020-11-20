@@ -1,6 +1,5 @@
 """
-Sehr spezifischer Use-Case: Aus einem XML, das MetaLib zwecks Migration von einem Server zum andern anbietet,
-sollen bestimmte Daten in eine CSV-Datei übernommen werden, welche dann nach Excel importiert werden kann.
+Alma BIB Exporte in CSV-Listen umwandeln.
 """
 
 from os import sys
@@ -8,13 +7,13 @@ from xml.etree import ElementTree as etree
 from xml.etree.ElementTree import Element
 
 try:
-    xml_dateipfad = sys.argv[1]
+    xml_dateipath = sys.argv[1]
 except IndexError:
-    print("Keine Datei? Sollte Dateipfad zum XML als ersten Parameter nach Skriptnamen angeben.")
+    print("Keine Input-Datei? Sollte Dateipfad zum XML als ersten Parameter nach Skriptnamen angeben.")
     sys.exit(1)
 
 try:
-    csv_dateipfad = sys.argv[2]
+    csv_filepath = sys.argv[2]
 except IndexError:
     print("Keine Output-Datei? Sollte Dateipfad zum TSV als zweiten Parameter nach Skriptnamen angeben.")
     sys.exit(1)
@@ -23,8 +22,9 @@ try:
     list_of_fields = sys.argv[3]
 except IndexError:
     print("Keine Liste an Kategorien übergeben? Bitte als dritten Parameter angeben.")
+    sys.exit(1)
 
-xml_etree = etree.parse(xml_dateipfad)
+xml_etree = etree.parse(xml_dateipath)
 
 
 def parse_record(csv_header: list, xml: Element) -> list:
@@ -57,6 +57,7 @@ def parse_record(csv_header: list, xml: Element) -> list:
                 xpath = f"{field_type}[@tag='{field[0:3]}' and ind1='{field[3]}' and ind2='{field[4]}']/subfield[@code='{field[5]}']"
         else:
             print("Given list of fields did not meet expectations.")
+            sys.exit(1)
 
         # print(xpath)
 
@@ -74,8 +75,8 @@ def parse_record(csv_header: list, xml: Element) -> list:
     return csv_row
 
 
-with open(csv_dateipfad, 'w+', encoding="utf-8") as csv_datei:
-    csv_datei.write('\ufeff')
+with open(csv_filepath, 'w+', encoding="utf-8") as csv_file:
+    csv_file.write('\ufeff')
 
     csv_header = list_of_fields.split(',')
 
@@ -86,7 +87,7 @@ with open(csv_dateipfad, 'w+', encoding="utf-8") as csv_datei:
         # print(csv_row)
         csv_content.append(csv_row)
 
-    csv_datei.write('"' + '";"'.join(csv_header) + '"\n')
+    csv_file.write('"' + '";"'.join(csv_header) + '"\n')
 
     for line in csv_content:
-        csv_datei.write(";".join(line) + '\n')
+        csv_file.write(";".join(line) + '\n')
