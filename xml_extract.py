@@ -27,52 +27,68 @@ except IndexError:
 xml_etree = etree.parse(xml_dateipath)
 
 
-def parse_record(csv_header: list, xml: Element) -> list:
+def parse_record(header: list, xml: Element) -> list:
 
-    csv_row = []
+    current_row = []
 
-    for field in csv_header:
+    for field in header:
 
         if field[0:2] == "00" and int(field[2]) <= 9:
             field_type = "controlfield"
         elif field == "leader":
-            field_type = "controlfield"
+            field_type = "leader"
         else:
             field_type = "datafield"
 
-        if len(field) == 3:
-            if field_type == "controlfield":
-                xpath = f"{field_type}[@tag='{field}']"
+        if field_type == "datafield":
+            if len(field) == 6:
+                xpath_subfield = f"subfield[@code='{field[5]}']"
             else:
-                xpath = f"{field_type}[@tag='{field}']/subfield"
-        elif len(field) == 5:
-            if field[3] == '*' and field[4] == '*':
-                xpath = f"{field_type}[@tag='{field[0:3]}']/subfield"
-            else:
-                xpath = f"{field_type}[@tag='{field[0:3]}' and ind1='{field[3]}' and ind2='{field[4]}']/subfield"
-        elif len(field) == 6:
-            if field[3] == '*' and field[4] == '*':
-                xpath = f"{field_type}[@tag='{field[0:3]}']/subfield[@code='{field[5]}']"
-            else:
-                xpath = f"{field_type}[@tag='{field[0:3]}' and ind1='{field[3]}' and ind2='{field[4]}']/subfield[@code='{field[5]}']"
+                xpath_subfield = "subfield"
+
+        xpath_field = f"{field_type}"
+
+        if field == "leader":
+            pass  # no need to add anything to xpath_field
+        elif len(field) == 3 or (
+                len(field) in [5, 6] and field[3] == '*' and field[4] == '*'
+        ):
+            xpath_field += f"[@tag='{field[0:3]}']"
+        elif len(field) in [5, 6]:
+            xpath_field += f"[@tag='{field[0:3]}' and ind1='{field[3]}' and ind2='{field[4]}']"
         else:
-            print("Given list of fields did not meet expectations.")
+            print("Given list of fields did not meet expectations ('leader' or length is 3, 5, or 6).")
             sys.exit(1)
 
-        # print(xpath)
+        # print(xpath_field)
 
-        found_fields = xml.findall(xpath)
-        found_fields_concat = []
-        for field in found_fields:
-            try:
-                code = field.attrib['code']
-                found_fields_concat.append('$$' + code + field.text)
-            except KeyError:
-                found_fields_concat.append(field.text.replace('"', '""'))
+        field_nodes = xml.findall(xpath_field)
+        field_nodes_concat = []
 
-        csv_row.append('"' + ''.join(found_fields_concat) + '"')
+        for field_node in field_nodes:
+            if field_type != "datafield":
+                field_node_cell_content = field_node.text
+            else:
+                field_node_ind1 = field_node.attrib['ind1']
+                field_node_ind2 = field_node.attrib['ind2']
+                field_node_cell_content = field_node_ind1 + field_node_ind2
 
-    return csv_row
+                subfield_nodes = field_node.findall(xpath_subfield)
+
+                if len(subfield_nodes) == 0:
+                    field_node_cell_content = ""
+                    continue
+
+                for subfield_node in subfield_nodes:
+                    code = subfield_node.attrib['code']
+                    subfield_node_content = '$$' + code + subfield_node.text
+                    field_node_cell_content += subfield_node_content
+
+            field_nodes_concat.append(field_node_cell_content.replace('"', '""'))  # replace " for csv compatibility
+
+        current_row.append('"' + '---'.join(field_nodes_concat) + '"')
+
+    return current_row
 
 
 with open(csv_filepath, 'w+', encoding="utf-8") as csv_file:
