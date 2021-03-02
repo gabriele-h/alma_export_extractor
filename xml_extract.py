@@ -2,6 +2,7 @@
 Alma BIB Exporte in CSV-Listen umwandeln.
 """
 
+import collections
 from os import sys
 from xml.etree import ElementTree as etree
 from xml.etree.ElementTree import Element
@@ -28,13 +29,17 @@ except IndexError:
     sys.exit(1)
 
 xml_etree = etree.parse(xml_dateipath)
+delim = '---'
 
 
 def parse_record(header: list, xml: Element) -> list:
 
+    current_row_dict = collections.defaultdict(str)
     current_row = []
 
     for field in header:
+
+        xpath_subfield = "subfield"
 
         if field[0:2] == "00" and int(field[2]) <= 9:
             field_type = "controlfield"
@@ -43,11 +48,8 @@ def parse_record(header: list, xml: Element) -> list:
         else:
             field_type = "datafield"
 
-        if field_type == "datafield":
-            if len(field) == 6:
-                xpath_subfield = f"subfield[@code='{field[5]}']"
-            else:
-                xpath_subfield = "subfield"
+        if field_type == "datafield" and len(field) == 6:
+            xpath_subfield += f"[@code='{field[5]}']"
 
         xpath_field = f"{field_type}"
 
@@ -58,12 +60,13 @@ def parse_record(header: list, xml: Element) -> list:
         ):
             xpath_field += f"[@tag='{field[0:3]}']"
         elif len(field) in [5, 6]:
-            xpath_field += f"[@tag='{field[0:3]}' and ind1='{field[3]}' and ind2='{field[4]}']"
+            xpath_field += f"[@tag='{field[0:3]}' and " \
+                           f"ind1='{field[3]}' and " \
+                           f"ind2='{field[4]}']"
         else:
-            print("Given list of fields did not meet expectations ('leader' or length is 3, 5, or 6).")
+            print("Given list of fields did not meet expectations ('leader' "
+                  "or length is 3, 5, or 6).")
             sys.exit(1)
-
-        # print(xpath_field)
 
         field_nodes = xml.findall(xpath_field)
         field_nodes_concat = []
@@ -79,17 +82,21 @@ def parse_record(header: list, xml: Element) -> list:
                 subfield_nodes = field_node.findall(xpath_subfield)
 
                 if len(subfield_nodes) == 0:
-                    field_node_cell_content = ""
                     continue
+                else:
+                    for subfield_node in subfield_nodes:
+                        code = subfield_node.attrib['code']
+                        subfield_node_content = f"$${code}{subfield_node.text}"
+                        field_node_cell_content += subfield_node_content
 
-                for subfield_node in subfield_nodes:
-                    code = subfield_node.attrib['code']
-                    subfield_node_content = '$$' + code + subfield_node.text
-                    field_node_cell_content += subfield_node_content
+            field_nodes_concat.append(
+                field_node_cell_content.replace('"', '""')
+            )  # replace " for csv compatibility
 
-            field_nodes_concat.append(field_node_cell_content.replace('"', '""'))  # replace " for csv compatibility
+        current_row_dict[field] += '"' + delim.join(field_nodes_concat) + '"'
 
-        current_row.append('"' + '---'.join(field_nodes_concat) + '"')
+    for field_value in current_row_dict:
+        current_row.append(current_row_dict[field_value])
 
     return current_row
 
