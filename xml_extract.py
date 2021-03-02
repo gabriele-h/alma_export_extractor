@@ -9,19 +9,22 @@ from xml.etree.ElementTree import Element
 try:
     xml_dateipath = sys.argv[1]
 except IndexError:
-    print("Keine Input-Datei? Sollte Dateipfad zum XML als ersten Parameter nach Skriptnamen angeben.")
+    print("Keine Input-Datei? Sollte Dateipfad zum XML als ersten Parameter "
+          "nach Skriptnamen angeben.")
     sys.exit(1)
 
 try:
     csv_filepath = sys.argv[2]
 except IndexError:
-    print("Keine Output-Datei? Sollte Dateipfad zum TSV als zweiten Parameter nach Skriptnamen angeben.")
+    print("Keine Output-Datei? Sollte Dateipfad zum CSV als zweiten Parameter "
+          "nach Skriptnamen angeben.")
     sys.exit(1)
 
 try:
     list_of_fields = sys.argv[3]
 except IndexError:
-    print("Keine Liste an Kategorien übergeben? Bitte als dritten Parameter angeben.")
+    print("Keine Liste an Kategorien übergeben? Bitte als dritten Parameter "
+          "angeben.")
     sys.exit(1)
 
 xml_etree = etree.parse(xml_dateipath)
