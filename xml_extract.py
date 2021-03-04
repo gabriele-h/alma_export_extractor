@@ -101,8 +101,7 @@ def parse_record(header: list, xml: Element) -> list:
     return current_row
 
 
-with open(csv_filepath, 'w+', encoding="utf-8") as csv_file:
-    csv_file.write('\ufeff')
+with open(csv_filepath, 'w+', encoding="utf-8-sig") as csv_file:
 
     csv_header = list_of_fields.split(',')
 
