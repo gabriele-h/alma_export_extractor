@@ -4,7 +4,7 @@ Namen, weil csv.DictReader verwendet wird.
 """
 
 import collections
-from csv import DictReader, DictWriter
+from csv import DictReader, DictWriter, QUOTE_ALL
 from os import sys
 
 try:
@@ -53,13 +53,22 @@ def rewrite_csv(input_file, output_file) -> dict:
                 key = col_name + "(" + str(x + 1) + ")"
                 header_list.append(key)
 
-    with open(input_file, 'r', encoding="utf-8-sig", newline="") as file:
+    with open(input_file, 'r', encoding="utf-8-sig") as file:
 
         reader = DictReader(file, delimiter=';')
 
-        with open(output_file, 'w+', encoding="utf-8-sig") as outfile:
+        with open(
+                output_file,
+                'w+', encoding="utf-8-sig",
+                newline=""
+        ) as outfile:
 
-            writer = DictWriter(outfile, delimiter=';', fieldnames=header_list)
+            writer = DictWriter(
+                outfile,
+                delimiter=';',
+                fieldnames=header_list,
+                quoting=QUOTE_ALL
+            )
             writer.writeheader()
 
             for row in reader:
