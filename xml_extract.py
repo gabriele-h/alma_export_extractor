@@ -101,7 +101,7 @@ def parse_record(header: list, xml: Element) -> list:
     return current_row
 
 
-with open(csv_filepath, 'w+', encoding="utf-8-sig") as csv_file:
+with open(csv_filepath, 'a', encoding="utf-8-sig") as csv_file:
 
     csv_header = list_of_fields.split(',')
 
@@ -112,7 +112,8 @@ with open(csv_filepath, 'w+', encoding="utf-8-sig") as csv_file:
         # print(csv_row)
         csv_content.append(csv_row)
 
-    csv_file.write('"' + '";"'.join(csv_header) + '"\n')
+    if not csv_file.tell:
+        csv_file.write('"' + '";"'.join(csv_header) + '"\n')
 
     for line in csv_content:
         csv_file.write(";".join(line) + '\n')
