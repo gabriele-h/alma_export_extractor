@@ -60,9 +60,12 @@ def parse_record(header: list, xml: Element) -> list:
         ):
             xpath_field += f"[@tag='{field[0:3]}']"
         elif len(field) in [5, 6]:
-            xpath_field += f"[@tag='{field[0:3]}' and " \
-                           f"ind1='{field[3]}' and " \
-                           f"ind2='{field[4]}']"
+            field = field.replace('#', ' ')
+            # Kudos to Karl Thornton for chaining attribute queries
+            # https://kaijento.github.io/2017/04/21/xml-parsing-python-xpath-logical-and/
+            xpath_field += f"[@tag='{field[0:3]}']" \
+                           f"[ind1='{field[3]}']" \
+                           f"[ind2='{field[4]}']"
         else:
             print("Given list of fields did not meet expectations ('leader' "
                   "or length is 3, 5, or 6).")
