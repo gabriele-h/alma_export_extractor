@@ -108,15 +108,10 @@ with open(csv_filepath, 'a', encoding="utf-8-sig") as csv_file:
 
     csv_header = list_of_fields.split(',')
 
-    csv_content = []
+    if csv_file.tell() == 0:
+        csv_file.write('"' + '";"'.join(csv_header) + '"\n')
 
     for record in xml_etree.findall('.//record'):
         csv_row = parse_record(csv_header, record)
         # print(csv_row)
-        csv_content.append(csv_row)
-
-    if not csv_file.tell:
-        csv_file.write('"' + '";"'.join(csv_header) + '"\n')
-
-    for line in csv_content:
-        csv_file.write(";".join(line) + '\n')
+        csv_file.write(";".join(csv_row) + '\n')
