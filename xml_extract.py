@@ -28,7 +28,7 @@ except IndexError:
           "angeben.")
     sys.exit(1)
 
-xml_etree = etree.parse(xml_dateipath)
+xml_iterator = etree.iterparse(xml_dateipath)
 delim = '---'
 
 
@@ -55,17 +55,22 @@ def parse_record(header: list, xml: Element) -> list:
 
         if field == "leader":
             pass  # no need to add anything to xpath_field
-        elif len(field) == 3 or (
-                len(field) in [5, 6] and field[3] == '*' and field[4] == '*'
-        ):
+
+        elif len(field) == 3:
             xpath_field += f"[@tag='{field[0:3]}']"
+
         elif len(field) in [5, 6]:
             field = field.replace('#', ' ')
+
             # Kudos to Karl Thornton for chaining attribute queries
             # https://kaijento.github.io/2017/04/21/xml-parsing-python-xpath-logical-and/
-            xpath_field += f"[@tag='{field[0:3]}']" \
-                           f"[ind1='{field[3]}']" \
-                           f"[ind2='{field[4]}']"
+            xpath_field += f"[@tag='{field[0:3]}']"
+
+            if field[3] != '*':
+                xpath_field += f"[@ind1='{field[3]}']"
+
+            if field[4] != '*':
+                xpath_field += f"[@ind2='{field[4]}']"
         else:
             print("Given list of fields did not meet expectations ('leader' "
                   "or length is 3, 5, or 6).")
@@ -110,8 +115,10 @@ with open(csv_filepath, 'a', encoding="utf-8-sig") as csv_file:
 
     if csv_file.tell() == 0:
         csv_file.write('"' + '";"'.join(csv_header) + '"\n')
+        # print(csv_header)
 
-    for record in xml_etree.findall('.//record'):
-        csv_row = parse_record(csv_header, record)
-        # print(csv_row)
-        csv_file.write(";".join(csv_row) + '\n')
+    for found in xml_iterator:
+        if found[1].tag == 'record':
+            csv_row = parse_record(csv_header, found[1])
+            # print(csv_row)
+            csv_file.write(";".join(csv_row) + '\n')
