@@ -29,7 +29,7 @@ except IndexError:
     sys.exit(1)
 
 xml_iterator = etree.iterparse(xml_dateipath)
-delim = '---'
+delim = '-||-'
 
 
 def parse_record(header: list, xml: Element) -> list:

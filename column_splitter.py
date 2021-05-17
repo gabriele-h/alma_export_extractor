@@ -21,7 +21,7 @@ except IndexError:
           "zweiten Parameter nach Skriptnamen angeben.")
     sys.exit(1)
 
-delim = '---'
+delim = '-||-'
 
 
 def rewrite_csv(input_file, output_file) -> dict:
