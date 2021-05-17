@@ -5,8 +5,8 @@ optimized for Excel.
 
 from argparse import ArgumentParser
 import collections
-from pathlib import Path
 from os import sys
+from pathlib import Path
 from xml.etree import ElementTree as etree
 from xml.etree.ElementTree import Element
 
@@ -16,7 +16,8 @@ parser = ArgumentParser(
                 "of the same field are delimited by '-||-'. Subfields are "
                 "concatenated in one cell for each field and separated by two "
                 "dollar characters followed by the subfield's code.",
-    epilog=""
+    epilog="CAUTION: If the same output file is used twice, data will be "
+           "appended to the existing file!"
 )
 parser.add_argument(
     "input_xml",
