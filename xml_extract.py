@@ -1,34 +1,46 @@
 """
-Alma BIB Exporte in CSV-Listen umwandeln.
+Extract specific information from Alma XML exports and make output that is
+optimized for Excel.
 """
 
+from argparse import ArgumentParser
 import collections
+from pathlib import Path
 from os import sys
 from xml.etree import ElementTree as etree
 from xml.etree.ElementTree import Element
 
-try:
-    xml_dateipath = sys.argv[1]
-except IndexError:
-    print("Keine Input-Datei? Sollte Dateipfad zum XML als ersten Parameter "
-          "nach Skriptnamen angeben.")
-    sys.exit(1)
+parser = ArgumentParser(
+    description="Based on a MARCXML file received from an Alma BIB/HOL export "
+                "create a CSV-file for Excel analyses. Multiple occurrences "
+                "of the same field are delimited by '-||-'. Subfields are "
+                "concatenated in one cell for each field and separated by two "
+                "two dollar characters followed by the subfield's code.",
+    epilog=""
+)
+parser.add_argument(
+    "input_xml",
+    type=Path,
+    help="File containing the MARCXML-Export from Alma."
+)
+parser.add_argument(
+    "output_csv",
+    type=Path,
+    help="File to write the csv to."
+)
+parser.add_argument(
+    "filter",
+    type=str,
+    help="Comma-separated string of information to be exported. Consult the "
+         "README for further information."
+)
+args = parser.parse_args()
 
-try:
-    csv_filepath = sys.argv[2]
-except IndexError:
-    print("Keine Output-Datei? Sollte Dateipfad zum CSV als zweiten Parameter "
-          "nach Skriptnamen angeben.")
-    sys.exit(1)
+path_to_input_xml = args.input_xml
+path_to_output_csv = args.output_csv
+list_of_fields = args.filter
 
-try:
-    list_of_fields = sys.argv[3]
-except IndexError:
-    print("Keine Liste an Kategorien übergeben? Bitte als dritten Parameter "
-          "angeben.")
-    sys.exit(1)
-
-xml_iterator = etree.iterparse(xml_dateipath)
+xml_iterator = etree.iterparse(path_to_input_xml)
 delim = '-||-'
 
 
@@ -109,7 +121,7 @@ def parse_record(header: list, xml: Element) -> list:
     return current_row
 
 
-with open(csv_filepath, 'a', encoding="utf-8-sig") as csv_file:
+with open(path_to_output_csv, 'a', encoding="utf-8-sig") as csv_file:
 
     csv_header = list_of_fields.split(',')
 
