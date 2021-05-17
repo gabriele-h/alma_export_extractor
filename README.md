@@ -57,3 +57,9 @@ versions are listed directly after with numeric suffixes in parentheses
 
 ## Custom Delimiter
 If you need to use a custom delimiter, you can use `--delimiter`.
+
+# License
+[GPL3](https://www.gnu.org/licenses/gpl-3.0.en.html), see also LICENSE.md
+
+# Author
+Gabriele Höfler
