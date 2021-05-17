@@ -127,10 +127,8 @@ with open(path_to_output_csv, 'a', encoding="utf-8-sig") as csv_file:
 
     if csv_file.tell() == 0:
         csv_file.write('"' + '";"'.join(csv_header) + '"\n')
-        # print(csv_header)
 
     for found in xml_iterator:
         if found[1].tag == 'record':
             csv_row = parse_record(csv_header, found[1])
-            # print(csv_row)
             csv_file.write(";".join(csv_row) + '\n')
