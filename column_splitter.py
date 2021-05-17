@@ -32,6 +32,12 @@ parser.add_argument(
          "will be removed from the result.",
     action='store_true'
 )
+parser.add_argument(
+    '--delimiter',
+    type=str,
+    help="Use if your data contains '-||-' and you need to override the "
+         "default delimiter."
+)
 args = parser.parse_args()
 
 csv_input = args.input_csv
@@ -39,7 +45,11 @@ csv_output = args.output_csv
 
 subfields = args.subfields
 
-delim = '-||-'
+if args.delimiter:
+    delim = args.delimiter
+else:
+    delim = '-||-'
+
 sf_delim = '$$'
 
 

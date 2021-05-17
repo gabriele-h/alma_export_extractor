@@ -54,3 +54,6 @@ column regardless of in which field they were found.
 All original columns from the input-file are preserved. The split
 versions are listed directly after with numeric suffixes in parentheses
 (e.g. "773(1)" is the first field).
+
+## Custom Delimiter
+If you need to use a custom delimiter, you can use `--delimiter`.
