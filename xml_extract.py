@@ -15,7 +15,7 @@ parser = ArgumentParser(
                 "create a CSV-file for Excel analyses. Multiple occurrences "
                 "of the same field are delimited by '-||-'. Subfields are "
                 "concatenated in one cell for each field and separated by two "
-                "two dollar characters followed by the subfield's code.",
+                "dollar characters followed by the subfield's code.",
     epilog=""
 )
 parser.add_argument(
