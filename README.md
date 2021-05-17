@@ -26,15 +26,15 @@ Wichtig ist, dass bei der Angabe der Kategorien keine Leerzeichen enthalten sind
 ## Column splitter
 
 Wenn gewünscht ist, dass die Mehrfachvorkommen zusätzlich in eigene Spalten
-aufgedröselt werden, kann der column_splitter verwendet werden.
+aufgedröselt werden, kann der column\_splitter verwendet werden.
 
 ```bash
 python column\_splitter.py input.csv output.csv
 ```
 
-Pro Spalte wird geschaut, wie oft der Delimiter '---' vorkommt. Auf Basis davon
-wird ein neues CSV generiert, das eine Spalte mit " gesamt" Suffix hat und darauf
+Pro Spalte wird geschaut, wie oft der Delimiter '-||-' vorkommt. Auf Basis davon
+wird ein neues CSV generiert, das eine Spalte ohne Suffix hat und darauf
 folgend die Spalten, in denen die gesplitteten Inhalte gelistet und ein numerisches
 Suffix hochgezählt wird (z. B. "(1)").
 
-Der Delimiter steht jeweils hardcoded in den Dateien drin.
+Der Delimiter '-||-' steht jeweils hardcoded in den Dateien drin.
