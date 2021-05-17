@@ -3,25 +3,44 @@ Delimited Columns splitten. Funktioniert nur für Spalten mit einmaligen
 Namen, weil csv.DictReader verwendet wird.
 """
 
+from argparse import ArgumentParser
 import collections
 from csv import DictReader, DictWriter, QUOTE_ALL
-from os import sys
+from pathlib import Path
 
-try:
-    csv_input = sys.argv[1]
-except IndexError:
-    print("Keine Input-Datei? Sollte Dateipfad zum CSV als ersten Parameter "
-          "nach Skriptnamen angeben.")
-    sys.exit(1)
+parser = ArgumentParser(
+    description='Split output created by xml_extract.py while retaining the '
+                'original columns. Useful for splitting multiple occurrences '
+                'of the same field into their own columns. After that you '
+                'may split all subfields with --subfields.',
+    epilog="CAUTION: If the same output file is used twice, data will be "
+           "appended to the existing file!"
+)
+parser.add_argument(
+    'input_csv',
+    type=Path,
+    help="File containing output from xml_extract.py"
+)
+parser.add_argument(
+    'output_csv',
+    type=Path,
+    help="File to write the split version of the csv to."
+)
+parser.add_argument(
+    '--subfields',
+    help="Use to split further into subfields after field-split. Indicators "
+         "will be removed from the result.",
+    action='store_true'
+)
+args = parser.parse_args()
 
-try:
-    csv_output = sys.argv[2]
-except IndexError:
-    print("Keine Output-Datei? Sollte Dateipfad zum gesplitteten CSV als "
-          "zweiten Parameter nach Skriptnamen angeben.")
-    sys.exit(1)
+csv_input = args.input_csv
+csv_output = args.output_csv
+
+subfields = args.subfields
 
 delim = '-||-'
+sf_delim = '$$'
 
 
 def rewrite_csv(input_file, output_file) -> dict:
@@ -74,9 +93,21 @@ def rewrite_csv(input_file, output_file) -> dict:
             for row in reader:
                 row_dict = collections.defaultdict(str)
                 for name in row.keys():
+
                     row_dict[name] = row[name]
-                    split_row = row[name].split(delim)
+
+                    if subfields:
+                        split_row = []
+                        first_split = row[name].split(delim)
+                        for element in first_split:
+                            second_split = element.split(sf_delim)
+                            second_split.pop(0)   # remove indicators
+                            split_row += second_split
+                    else:
+                        split_row = row[name].split(delim)
+
                     num_splitted = len(split_row)
+
                     if header_dict[name] > 1:
                         for x in range(header_dict[name]):
                             key = name + "(" + str(x + 1) + ")"
