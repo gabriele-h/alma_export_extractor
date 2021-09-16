@@ -53,7 +53,7 @@ else:
 sf_delim = '$$'
 
 
-def rewrite_csv(input_file, output_file) -> dict:
+def rewrite_csv(input_file, output_file):
     """
     Analyse the number of columns necessary to do the splitting.
     :param input_file: Path to the input file including the file's name
