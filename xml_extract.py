@@ -35,6 +35,11 @@ parser.add_argument(
     help="Comma-separated string of information to be exported. Consult the "
          "README for further information."
 )
+parser.add_argument(
+    "-d", "--debug",
+    help="Turn on debugging info via print.",
+    action="store_true"
+)
 args = parser.parse_args()
 
 path_to_input_xml = args.input_xml
@@ -125,6 +130,8 @@ def parse_record(header: list, xml: Element) -> list:
 with open(path_to_output_csv, 'a', encoding="utf-8-sig") as csv_file:
 
     csv_header = list_of_fields.split(',')
+    if args.debug:
+        print(csv_header)
 
     if csv_file.tell() == 0:
         csv_file.write('"' + '";"'.join(csv_header) + '"\n')

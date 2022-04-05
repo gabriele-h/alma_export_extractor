@@ -9,7 +9,7 @@ with a python script.
 ## Usage
 
 ```bash
-python xml_extractor.py input.xml output.csv leader,001,773
+python xml_extractor.py input.xml output.csv 'leader,001,773'
 ```
 
 ### All subfields
@@ -20,7 +20,7 @@ It is possible to provide no indicators at all or to replace one of them
 with an asterisk.
 
 ```bash
-python xml_extractor.py input.xml output.csv 100,245**,77308
+python xml_extractor.py input.xml output.csv '100,245**,77308'
 ```
 
 ### Specific subfields with any indicators
@@ -28,7 +28,7 @@ If indicators are irrelevant, but you want to filter for specific subfields,
 both indicators must be replaced with asterisks
 
 ```bash
-python xml_extractor.py input.xml output.csv 245**a,245**b
+python xml_extractor.py input.xml output.csv '245**a,245**b'
 ```
 
 It is important to not have any spaces within the filter-parameter.
